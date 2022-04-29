@@ -5,14 +5,17 @@ import React, { useState, useEffect } from "react";
 const LOADING = "loading",
   LOADED = "loaded",
   FAILURE = "failure",
-  SUCCESS = "success";
+  SUCCESS = "success",
+  RUNNING = "running";
 
 let allCountries;
 let errMessage = null;
-let fetchedFlag = LOADING; // use this to determine success of fetch
-let objectToBeginWith, allTheNames;
+let fetchedFlag = LOADING; // use this to determine the success of 'fetch'
+let stateToBeginWith = {},
+  allTheNames;
 
 function App() {
+  const [state, setState] = useState(false);
   useEffect(() => {
     fetch(`https://restcountries.com/v3.1/all`)
       .then((result) => {
@@ -27,6 +30,7 @@ function App() {
         allCountries = data;
         fetchedFlag = LOADED;
         setUp();
+        setState(true);
       })
       .catch((err) => {
         if (!errMessage) {
@@ -37,8 +41,45 @@ function App() {
       });
   }, []);
 
-  const [stateObject, setStateObject] = useState({ ...objectToBeginWith }); // shallow copy
+  //const [stateObject, setStateObject] = useState({ ...stateToBeginWith }); // shallow copy
+  const [stateObject, setStateObject] = useState(null); // shallow copy
+  const [, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
 
+  console.log(fetchedFlag);
+  console.log(stateObject);
+  console.log(stateToBeginWith);
+
+  function handleClick(event) {
+    console.log(fetchedFlag, SUCCESS);
+    if (fetchedFlag === LOADING) {
+      return null;
+    }
+
+    console.log(stateToBeginWith);
+    console.log(fetchedFlag);
+
+    if (fetchedFlag === SUCCESS) {
+      // Very first Iteration
+      // update State
+      console.log(stateObject);
+      setStateObject((state) => Object.assign({}, stateToBeginWith)); // shallow copy
+      //forceUpdate();
+      fetchedFlag = RUNNING;
+      console.log(stateObject);
+      console.log(stateToBeginWith);
+    }
+
+    console.log("WELL");
+    console.log(stateObject);
+  }
+
+  handleClick();
+
+  if (fetchedFlag === LOADING) {
+    return null;
+  }
+  setStateObject((state) => Object.assign({}, stateToBeginWith));
   return (
     <div className="App">
       <DisplayCountries
@@ -51,20 +92,26 @@ function App() {
 
 function setUp() {
   let allTheNames = verifyJson();
+  fetchedFlag = SUCCESS;
+  console.log(fetchedFlag);
 
   let consecNums = [...Array(allCountries.length).keys()]; // 0,1,2,3,... to the length of allCountries-1 i.e. 0-188
 
   // The state has 4 elements: countryNameList, displayedList, textEntered, region
-  let objectToBeginWith = {
+  stateToBeginWith = {
     countryNameList: consecNums,
     displayedList: consecNums,
     textEntered: "",
     region: "all",
   };
+
+  console.log(fetchedFlag, stateToBeginWith);
 }
 
 function RunApp(props) {
-  const [stateObject, setStateObject] = useState({ ...objectToBeginWith }); // shallow copy
+  //const [stateObject, setStateObject] = useState({ ...objectToBeginWith }); // shallow copy
+
+  console.log("TESTING");
 
   DisplayCountries();
   //const [stateObject, setStateObject] = useState({ ...tempObject }); // shallow copy
@@ -75,7 +122,7 @@ const DisplayCountries = (props) => {
   let listOfCountriesIndices = props.theCountries;
   return (
     <div className="flex-container">
-      {listOfCountries.map((countryIndex) => {
+      {listOfCountriesIndices.map((countryIndex) => {
         // let theClassName = child.gender === "m" ? "malename" : "femalename";
         let theEntry = allCountries[countryIndex];
         return (
@@ -84,6 +131,7 @@ const DisplayCountries = (props) => {
             countryName={theEntry.common.name}
             capitalName={theEntry.capital}
             flag={theEntry.flags.svg}
+            alt={theEntry.flags.svg}
             region={theEntry.region}
             population={theEntry.population}
             //theClassName={theClassName}
@@ -100,11 +148,25 @@ function DisplayACountry(props) {
   let theSpan = (
     <span
       key={props.index}
-      className={props.theClassName}
+      className="countrycard"
       id={props.countryName}
       onClick={props.handleClick}
     >
-      {props.childName}
+      <img src={props.flag} alt={`Flag for ${props.countryName}`}></img>
+      <span className="cardtext">
+        <h2>{props.countryName}</h2>
+        <span>
+          <b>Population:</b> {props.population}
+        </span>
+
+        <span>
+          <b>Region:</b> {props.region}
+        </span>
+
+        <span>
+          <b>Capital:</b> {props.capital}
+        </span>
+      </span>
     </span>
   );
   return theSpan;
