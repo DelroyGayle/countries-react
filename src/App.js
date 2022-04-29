@@ -2,98 +2,127 @@ import logo from "./logo.svg";
 import "./App.css";
 import React, { useState, useEffect } from "react";
 
-const LOADING = "loading",
-  LOADED = "loaded",
-  FAILURE = "failure",
-  SUCCESS = "success",
-  RUNNING = "running";
-
 let allCountries;
-let errMessage = null;
-let fetchedFlag = LOADING; // use this to determine the success of 'fetch'
+
 let stateToBeginWith = {},
   allTheNames;
+let filteredList = [];
+let searchRegion = "all";
 
 function App() {
-  const [state, setState] = useState(false);
+  const [dataState, setDataState] = useState(null);
+  //const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stateObject, setStateObject] = useState(null);
+
   useEffect(() => {
     fetch(`https://restcountries.com/v3.1/all`)
       .then((result) => {
         if (result.status !== 200) {
-          errMessage = `Server responds with error: ${result.status}`;
-          throw new Error(errMessage);
+          throw new Error(`Server responds with error: ${result.status}`);
         }
         // console.log(result.status);
         return result.json();
       })
       .then((data) => {
         allCountries = data;
-        fetchedFlag = LOADED;
+        // console.log(data);
+
         setUp();
-        setState(true);
+        setDataState(true);
+        setError(null);
+        // Very first Iteration
+        // update State
+        setStateObject((state) => Object.assign({}, stateToBeginWith)); // shallow copy
       })
       .catch((err) => {
-        if (!errMessage) {
-          errMessage = "Status Error = " + err;
-        }
-        fetchedFlag = FAILURE;
-        throw new Error(errMessage);
+        console.log(err.message);
+        setError(err.message);
+        setDataState(false);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
+  /*
   //const [stateObject, setStateObject] = useState({ ...stateToBeginWith }); // shallow copy
   const [stateObject, setStateObject] = useState(null); // shallow copy
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
-  console.log(fetchedFlag);
   console.log(stateObject);
   console.log(stateToBeginWith);
+*/
 
-  function handleClick(event) {
-    console.log(fetchedFlag, SUCCESS);
-    if (fetchedFlag === LOADING) {
-      return null;
-    }
+  function handleChange(event) {
+    let enteredString = event.target.value;
 
-    console.log(stateToBeginWith);
-    console.log(fetchedFlag);
+    // console.log(stateObject.textEntered);
 
-    if (fetchedFlag === SUCCESS) {
-      // Very first Iteration
-      // update State
-      console.log(stateObject);
-      setStateObject((state) => Object.assign({}, stateToBeginWith)); // shallow copy
-      //forceUpdate();
-      fetchedFlag = RUNNING;
-      console.log(stateObject);
-      console.log(stateToBeginWith);
-    }
+    applyFilter(enteredString);
 
-    console.log("WELL");
-    console.log(stateObject);
+    // update State
+    setStateObject({
+      ...stateObject,
+      textEntered: enteredString,
+      displayedList: filteredList,
+    });
   }
 
-  handleClick();
+  function applyFilter(enteredString = stateObject.textEntered) {
+    if (enteredString !== "") {
+      if (searchRegion === "all") {
+        filteredList = allTheNames.filter((element) =>
+          element[0].includes(enteredString.toLowerCase())
+        );
+      } else {
+        filteredList = allTheNames.filter(
+          (element) =>
+            allCountries[element[1]].region === searchRegion &&
+            element[0].includes(enteredString.toLowerCase())
+        );
+      }
+    } else {
+      // enteredString === ""
 
-  if (fetchedFlag === LOADING) {
-    return null;
+      filteredList =
+        searchRegion === "all"
+          ? allTheNames
+          : allTheNames.filter(
+              (element) => allCountries[element[1]].region === searchRegion
+            );
+    }
+
+    let noDuplicates = new Set(filteredList.map((element) => element[1]));
+    filteredList = [...noDuplicates];
+    // filteredList now contains all the relevant indices to allCountries that match the Criteria
   }
-  setStateObject((state) => Object.assign({}, stateToBeginWith));
+
+  function handleClick(event) {}
+
+  dataState && applyFilter("");
   return (
     <div className="App">
-      <DisplayCountries
-        theCountries={[...stateObject.displayedList]}
-        handleClick={handleClick}
-      />
+      {loading && <div>A moment please...</div>}
+      {error && (
+        <div>{`There is a problem fetching the post data - ${error}`}</div>
+      )}
+
+      {dataState && (
+        <DisplayCountries
+          theCountries={[...stateObject.displayedList]}
+          handleClick={handleClick}
+        />
+      )}
     </div>
   );
 }
 
 function setUp() {
-  let allTheNames = verifyJson();
-  fetchedFlag = SUCCESS;
-  console.log(fetchedFlag);
+  allTheNames = verifyJson();
+  console.log(allTheNames); // 482 entries
 
   let consecNums = [...Array(allCountries.length).keys()]; // 0,1,2,3,... to the length of allCountries-1 i.e. 0-188
 
@@ -104,42 +133,44 @@ function setUp() {
     textEntered: "",
     region: "all",
   };
-
-  console.log(fetchedFlag, stateToBeginWith);
-}
-
-function RunApp(props) {
-  //const [stateObject, setStateObject] = useState({ ...objectToBeginWith }); // shallow copy
-
-  console.log("TESTING");
-
-  DisplayCountries();
-  //const [stateObject, setStateObject] = useState({ ...tempObject }); // shallow copy
-  return <>DisplayCountries propsAllObjects=tempAllObjects</>;
 }
 
 const DisplayCountries = (props) => {
   let listOfCountriesIndices = props.theCountries;
   return (
-    <div className="flex-container">
-      {listOfCountriesIndices.map((countryIndex) => {
-        // let theClassName = child.gender === "m" ? "malename" : "femalename";
-        let theEntry = allCountries[countryIndex];
-        return (
-          <DisplayACountry
-            key={countryIndex}
-            countryName={theEntry.common.name}
-            capitalName={theEntry.capital}
-            flag={theEntry.flags.svg}
-            alt={theEntry.flags.svg}
-            region={theEntry.region}
-            population={theEntry.population}
-            //theClassName={theClassName}
-            theIndex={countryIndex}
-            handleClick={props.handleClick}
-          />
-        );
-      })}
+    <div>
+      <div className="flexwrap-container">
+        <div className="left">one</div>
+        <div className="right">two</div>
+      </div>
+      <div className="flex-container">
+        {listOfCountriesIndices.map((countryIndex) => {
+          // let theClassName = child.gender === "m" ? "malename" : "femalename";
+          let theEntry = { ...allCountries[countryIndex] }; // Shallow Copy
+
+          if (theEntry.region.endsWith("s")) {
+            theEntry.region = theEntry.region.slice(0, -1); // Change Americas to America
+          }
+
+          theEntry.capital =
+            theEntry.capital.length > 0 ? theEntry.capital[0] : "";
+
+          return (
+            <DisplayACountry
+              key={countryIndex}
+              countryName={theEntry.name.common}
+              capitalName={theEntry.capital}
+              flag={theEntry.flags.svg}
+              alt={theEntry.flags.svg}
+              region={theEntry.region}
+              population={theEntry.population.toLocaleString()} // .toLocaleString() adds the commas
+              //theClassName={theClassName}
+              theIndex={countryIndex}
+              handleClick={props.handleClick}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -164,7 +195,7 @@ function DisplayACountry(props) {
         </span>
 
         <span>
-          <b>Capital:</b> {props.capital}
+          <b>Capital:</b> {props.capitalName}
         </span>
       </span>
     </span>
@@ -231,12 +262,12 @@ region: "Antarctic"
 
 SO I WILL FILTER ONLY FOR 
 Africa
-America
+America - NOTE: Use Americas
 Asia
 Europe
 Oceania
 
-This results with allCountries having 189 entries
+This resulted with allCountries having 245 entries
 */
 
 function verifyJson() {
@@ -273,13 +304,13 @@ function verifyJson() {
     .filter(
       (element) =>
         element.region === "Africa" ||
-        element.region === "America" ||
+        element.region === "Americas" ||
         element.region === "Asia" ||
         element.region === "Europe" ||
         element.region === "Oceania"
     )
     .sort(sortCountries);
-  // console.log(allCountries); // 189 countries
+  // console.log(allCountries); // 245 countries
 
   let tempObject = {};
   allCountries.forEach((element, index) => {
@@ -288,6 +319,7 @@ function verifyJson() {
       tempObject[element.capital[0].toLowerCase()] = index; // Country Name
     }
   });
+
   /*
   console.log(tempObject);
 
@@ -316,10 +348,29 @@ console.log(Object.keys(tempObject));
 
 .toLowerCase()
 (371) ['afghanistan', 'kabul', 'albania', 'tirana', 'algeria', 'algiers'
-  */
 
-  return tempObject;
+  console.log(Object.entries(tempObject));
+
+Object.entries(tempObject) - 482 ENTRIES
+EG
+
+0: (2) ['afghanistan', 0]
+1: (2) ['kabul', 0]
+2: (2) ['åland islands', 1]
+3: (2) ['mariehamn', 1]
+4: (2) ['albania', 2]
+5: (2) ['tirana', 2]
+6: (2) ['algeria', 3]
+7: (2) ['algiers', 3]
+ETC
+
+*/
+
+  return Object.entries(tempObject);
 }
+
+/*
+USE localeCompare TO SORT NAMES SUCH AS 'Aland Islands' ACCORDINGLY
 
 function sortCountries(a, z) {
   return a.name.common < z.name.common
@@ -327,6 +378,11 @@ function sortCountries(a, z) {
     : a.name.common > z.name.common
     ? 1
     : 0;
+}
+*/
+
+function sortCountries(a, z) {
+  return a.name.common.localeCompare(z.name.common);
 }
 
 export default App;
