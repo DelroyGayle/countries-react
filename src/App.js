@@ -14,6 +14,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stateObject, setStateObject] = useState(null);
+  const [detailsView, setDetailsView] = useState(false);
 
   useEffect(() => {
     fetch(`https://restcountries.com/v3.1/all`)
@@ -63,8 +64,6 @@ function App() {
   function handleMenuChange(event) {
     let theValue = event.target.value;
 
-    let regionChangeFlag = false;
-
     if (theValue !== searchRegion) {
       // Change of Region
       searchRegion = theValue;
@@ -81,7 +80,6 @@ function App() {
   }
 
   function applyFilter(enteredString = stateObject.textEntered) {
-
     if (enteredString !== "") {
       if (searchRegion === "all") {
         filteredIndices = allTheNames.filter((element) =>
@@ -110,16 +108,101 @@ function App() {
     // filteredIndices now contains all the relevant indices to allCountries that match the Criteria
   }
 
-  function handleClick(event) {}
+  function findParent(element) {
+    if (element.classList.contains("countrycard")) {
+      console.log("YES",element.id);
+      return
+    }
+    const parent = element.parentNode;
+    console.log(element);
+    console.log(parent);
+    if (parent.classList.contains("countrycard")) {
+      console.log(parent.id);
+    } else if (parent) {
+      findParent(parent);
+    }
+  }
+
+  function handleClick(event) {
+    // event.target.parentElement.id will have the value CYnn
+    // nn being (1 +) its position in allCountries
+    let element = event.target;
+
+    findParent(element);
+    //console.log(event.target.parentNode.id);
+    return;
+    console.log(event);
+    console.log(event.target);
+    console.log(event.target.parentElement.id);
+    console.log(event.target.children);
+    console.log(event.target.childNodes);
+    handleCountryDetailsViews(
+      event.target.parentElement.id,
+      event.target.childNodes,
+      event
+    );
+  }
+
+  // Error occurred whilst fetching data
+  if (error) {
+    return <div>{`There is a problem fetching the post data - ${error}`}</div>;
+  }
 
   dataState && applyFilter();
+
+  /*
+      Level 4 :-
+      Allow users to click on a country and view that country's full details, as shown in the frontendmentor challenge.
+      Make sure to allow clicking on bordering countries to visit these neighbours
+  */
+
+  if (detailsView) {
+    return (
+      <div className="cview-flex-container">
+        <img src="https://flagcdn.com/ag.svg" alt="" />
+        <div>
+          <div>
+            <div className="grid-container">
+              <div className="countryname">Belgium</div>
+              <div className="nativename">Native Name: Belgie</div>
+              <div className="population">Population: 100</div>
+              <div className="capital">Capital: Brussels</div>
+              <div className="region">Region: Europe</div>
+              <div className="subregion">Sub Region: Western Europe</div>
+              <div className="tld">Top Level Domain: .be</div>
+              <div className="currencies">Currencies: Euro</div>
+              <div className="languages">Languages: Dutch, French, German</div>
+              <div className="theborder">Border Countries</div>
+              <div className="neighbours">
+                <div className="flex">
+                  <div className="border-item">Navigation1</div>
+                  <div className="line-break"></div>
+                  <div className="border-item">Navigation2</div>
+                  <div className="border-item">Navigation3</div>
+                  <div className="line-break"></div>
+                  <div className="border-item">Navigation4</div>
+                  <div className="border-item">Navigation5</div>
+                  <div className="border-item">Navigation6</div>
+                  <div className="border-item">Navigation7</div>
+                  <div className="line-break"></div>
+                  <div className="border-item">Navigation8</div>
+                  <div className="border-item">Navigation9</div>
+                  <div className="border-item">Navigation10</div>
+                  <div className="border-item">Navigation11</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="App">
       {loading && <div>A moment please...</div>}
-      {error && (
-        <div>{`There is a problem fetching the post data - ${error}`}</div>
-      )}
+
+      {detailsView && <div>ERROR</div>}
 
       {dataState && (
         <div>
@@ -208,7 +291,6 @@ const DisplayCountries = (props) => {
     <div>
       <div className="flex-container">
         {listOfCountriesIndices.map((countryIndex) => {
-          // let theClassName = child.gender === "m" ? "malename" : "femalename";
           let theEntry = { ...allCountries[countryIndex] }; // Shallow Copy
 
           if (theEntry.region.endsWith("s")) {
@@ -227,7 +309,6 @@ const DisplayCountries = (props) => {
               alt={theEntry.flags.svg}
               region={theEntry.region}
               population={theEntry.population.toLocaleString()} // .toLocaleString() adds the commas
-              //theClassName={theClassName}
               theIndex={countryIndex}
               handleClick={props.handleClick}
             />
@@ -241,13 +322,26 @@ const DisplayCountries = (props) => {
 function DisplayACountry(props) {
   let theSpan = (
     <span
-      key={props.index}
+      key={props.theIndex}
       className="countrycard"
-      id={props.countryName}
+      /*
+
+        id={props.countryName}
+        
+        eg CY1 CY100 THEREFORE CY1 TO CY245 
+        USING +1 BECAUSE OF const [detailsView, setDetailsView] = useState(false);
+        0 WOULD BE CONSIDERED FALSE
+
+        Also I need an #ID with the same unique number for the corresponding text just in case the text is clicked
+        So I use CTnn
+
+    */
+
+      id={"CY" + (props.theIndex + 1)}
       onClick={props.handleClick}
     >
       <img src={props.flag} alt={`Flag for ${props.countryName}`}></img>
-      <span className="cardtext">
+      <span className="cardtext" id={"CT" + (props.theIndex + 1)}>
         <h2>{props.countryName}</h2>
         <span>
           <b>Population: </b>
@@ -452,6 +546,55 @@ function sortCountries(a, z) {
 
 function sortCountries(a, z) {
   return a.name.common.localeCompare(z.name.common);
+}
+
+/* ROUTINES FOR Level 4: DISPLAY THE DETAILS OF A COUNTRY 
+
+Depending on what was click
+If the Image the ID will be of the form CYnn
+If the Text  the ID will be of the form CTnn
+If the surrounding area it will return a childNodes with a string of the form 
+'span#CT4.cardtext'
+
+Anything else ignore
+*/
+
+function handleCountryDetailsViews(theId, theChildNodes, theTarget) {
+  const regex = /^(C[TY]|target: span#CY)([0-9]+)/;
+  const found = theId.match(regex);
+  let theParent = theTarget;
+  console.log(theTarget, typeof theTarget);
+  console.log(theTarget.target, theTarget.parentElement);
+  if (!found) {
+    /* TRY TO DETERMINE THE ID BY GOING UP THE parentElement */
+
+    let ok = false;
+    let num = 0;
+    while (true) {
+      console.log(theParent, typeof theParent);
+      console.log(theParent);
+      if ("id" in theParent) {
+        alert("FOUND" + theParent.id);
+        ok = true;
+        break;
+      }
+
+      if (++num > 4) {
+        // Definitely not found!
+        return;
+      }
+      console.log(theParent);
+      theParent = theParent.target.parentNode;
+    }
+    console.log(theParent);
+    return;
+
+    let array = [...theChildNodes]; // convert nodes to an array
+    //alert("OK" + array[1]);
+    for (let i in array) console.log(i, array[i]);
+    return;
+  }
+  console.log(found);
 }
 
 export default App;

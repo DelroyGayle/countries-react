@@ -133,9 +133,113 @@ select {
   -webkit-select-appearance: none;
   */
   border: 1px solid #ccc;
-
 }
 
 .blankspace {
   margin-bottom: 6rem;
+}
+
+.cview-flex-container {
+  margin: 5rem;
+  display: flex;
+  flex-basis: 50%;
+  gap: 60px;
+}
+
+.wrap3 {
+  flex-grow: 1;
+  min-width: 33%;
+}
+
+img {
+  width: 500px;
+  height: 360px;
+}
+
+.flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.line-break {
+  width: 100%;
+}
+
+/* Level 4 Code */
+
+.border-item {
+  /* box-sizing:border-box; */
+  border: none;
+  box-shadow: 0 0.188rem 0.625rem rgb(0 0 0 / 0.2);
+  position: relative;
+  margin: 10px;
+  padding: 10px 0;
+  color: black;
+  width: 150px;
+  text-align: center;
+}
+
+/* Use GRID Method */
+
+.countryname {
+  margin-top: 1rem;
+  grid-area: countryname;
+}
+
+.nativename {
+  grid-area: nativename;
+}
+
+.population {
+  grid-area: population;
+}
+
+.tld {
+  grid-area: tld;
+}
+
+.currencies {
+  grid-area: currencies;
+}
+
+.region {
+  grid-area: region;
+}
+
+.subregion {
+  grid-area: subregion;
+}
+
+.capital {
+  grid-area: capital;
+}
+
+.theborder {
+  grid-area: theborder;
+}
+
+.neighbours {
+  grid-area: neighbours;
+}
+
+.grid-container {
+  display: grid;
+  /*
+  grid-template-columns: 50px 50px 50px 50px;
+  grid-template-rows: auto;
+	*/
+  grid-template-areas:
+    "countryname    countryname     countryname     countryname     countryname     countryname"
+    "nativename     nativename      nativename      tld             tld             tld"
+    "population     population      population      currencies      currencies      currencies"
+    "region         region          region          languages       languages       languages"
+    "subregion      subregion       .               .               .               ."
+    "capital        capital         .               .               .               ."
+    ".              .               .               .               .               ."
+    ".              .               .               .               .               ."
+    ".              .               .               .               .               ."
+    ".              .               .               .               .               ."
+    "theborder      neighbours      neighbours      neighbours      neighbours      neighbours";
+  gap: 10px;
 }
