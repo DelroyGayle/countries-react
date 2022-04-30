@@ -8,13 +8,14 @@ let stateToBeginWith = {},
   allTheNames;
 let filteredIndices = [];
 let searchRegion = "all";
+let countryIndex;
 
 function App() {
   const [dataState, setDataState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stateObject, setStateObject] = useState(null);
-  const [detailsView, setDetailsView] = useState(false);
+  const [detailsView, setDetailsView] = useState(0);
 
   useEffect(() => {
     fetch(`https://restcountries.com/v3.1/all`)
@@ -108,39 +109,23 @@ function App() {
     // filteredIndices now contains all the relevant indices to allCountries that match the Criteria
   }
 
-  function findParent(element) {
-    if (element.classList.contains("countrycard")) {
-      console.log("YES",element.id);
-      return
-    }
-    const parent = element.parentNode;
-    console.log(element);
-    console.log(parent);
-    if (parent.classList.contains("countrycard")) {
-      console.log(parent.id);
-    } else if (parent) {
-      findParent(parent);
-    }
+  function sortArray(a, z) {
+    return a.localeCompare(z);
   }
 
   function handleClick(event) {
-    // event.target.parentElement.id will have the value CYnn
-    // nn being (1 +) its position in allCountries
-    let element = event.target;
+    /*
+       Determine the #ID of the clicked element either CYnn or CTnn
+       nn being (1 +) its position in allCountries
+    */
 
-    findParent(element);
-    //console.log(event.target.parentNode.id);
-    return;
-    console.log(event);
-    console.log(event.target);
-    console.log(event.target.parentElement.id);
-    console.log(event.target.children);
-    console.log(event.target.childNodes);
-    handleCountryDetailsViews(
+    countryIndex = handleCountryDetailsViews(
       event.target.parentElement.id,
-      event.target.childNodes,
-      event
+      event.target
     );
+    if (countryIndex)
+      // Success, update State and decrement 'countryIndex' to true value
+      setDetailsView(countryIndex--);
   }
 
   // Error occurred whilst fetching data
@@ -148,7 +133,7 @@ function App() {
     return <div>{`There is a problem fetching the post data - ${error}`}</div>;
   }
 
-  dataState && applyFilter();
+  dataState && !detailsView && applyFilter();
 
   /*
       Level 4 :-
@@ -157,22 +142,76 @@ function App() {
   */
 
   if (detailsView) {
+    let countryInfo = allCountries[countryIndex];
+    let theLanguages = "",
+      theNativeName = "";
+    /*
+    For population, .toLocaleString() adds the commas
+    */
+
+    let [firstKey] = Object.keys(countryInfo.currencies); // Destructuring
+    let theCurrencies =
+      "name" in countryInfo.currencies[firstKey]
+        ? countryInfo.currencies[firstKey].name
+        : "";
+
+    if ("nativeName" in countryInfo.name) {
+      [firstKey] = Object.keys(countryInfo.name.nativeName); // Destructuring
+      theNativeName =
+        "common" in countryInfo.name.nativeName[firstKey]
+          ? countryInfo.name.nativeName[firstKey].common
+          : "official" in countryInfo.name.nativeName[firstKey]
+          ? countryInfo.name.nativeName[firstKey].official
+          : "";
+    }
+
+    if ("languages" in countryInfo) {
+      let array = Object.values(countryInfo.languages).sort(sortArray);
+      theLanguages = array.join(", ");
+    }
+
     return (
       <div className="cview-flex-container">
         <img src="https://flagcdn.com/ag.svg" alt="" />
         <div>
           <div>
             <div className="grid-container">
-              <div className="countryname">Belgium</div>
-              <div className="nativename">Native Name: Belgie</div>
-              <div className="population">Population: 100</div>
-              <div className="capital">Capital: Brussels</div>
-              <div className="region">Region: Europe</div>
-              <div className="subregion">Sub Region: Western Europe</div>
-              <div className="tld">Top Level Domain: .be</div>
-              <div className="currencies">Currencies: Euro</div>
-              <div className="languages">Languages: Dutch, French, German</div>
-              <div className="theborder">Border Countries</div>
+              <h2 className="countryname">{countryInfo.name.common}</h2>
+              <div className="nativename">
+                <span className="title">Native Name: </span>
+                {theNativeName}
+              </div>
+              <div className="population">
+                <span className="title">Population: </span>
+                {countryInfo.population.toLocaleString() || ""}
+              </div>
+              <div className="capital">
+                <span className="title">Capital: </span>
+                {countryInfo.capital[0] || ""}
+              </div>
+              <div className="region">
+                <span className="title">Region: </span>
+                {countryInfo.region || ""}
+              </div>
+              <div className="subregion">
+                <span className="title">Sub Region: </span>
+                {countryInfo.subregion || ""}
+              </div>
+              <div className="tld">
+                <span className="title">Top Level Domain: </span>
+                {countryInfo.tld[0] || ""}
+              </div>
+              <div className="currencies">
+                <span className="title">Currencies: </span>
+                {theCurrencies}
+              </div>
+              <div className="languages">
+                <span className="title">Languages: </span>
+                {theLanguages}
+              </div>
+              <div className="theborder">
+                <span className="title">Border Countries: </span>
+              </div>
               <div className="neighbours">
                 <div className="flex">
                   <div className="border-item">Navigation1</div>
@@ -202,7 +241,7 @@ function App() {
     <div className="App">
       {loading && <div>A moment please...</div>}
 
-      {detailsView && <div>ERROR</div>}
+      {error && <div>ERROR</div>}
 
       {dataState && (
         <div>
@@ -435,6 +474,7 @@ function verifyJson() {
     if (!element.name.common) {
       throw new Error(`No. ${index} - CANNOT DETERMINE COUNTRY NAME`);
     }
+
     let aname = element.name.common;
     // altSpellings: (4) ['AX', 'Aaland', 'Aland', 'Ahvenanmaa']
     if (element.altSpellings.includes("Aland")) {
@@ -448,7 +488,7 @@ function verifyJson() {
     ) {
       // IGNORE - region: "Antarctic"
     } else {
-      if (!("capital" in element)) {
+      if (!("capital" in element) && element.capital[0]) {
         throw new Error(`No. ${index} - ${aname} has no capital!`);
       }
       if (!element.flags.svg) {
@@ -460,6 +500,22 @@ function verifyJson() {
       if (!("region" in element)) {
         throw new Error(`No. ${index} - ${aname} has no region!`);
       }
+
+      /*
+Discovered that
+There is a problem fetching the post data - No. 4 - Martinique has no IOC code!
+There is a problem fetching the post data - No. 22 - Réunion has no IOC code!
+There is a problem fetching the post data - No. 23 - Montserrat has no IOC code!
+There is a problem fetching the post data - No. 26 - Saint Pierre and Miquelon has no IOC code!
+ETC
+
+Some countries have no IOC
+Instead use 'cca3'
+
+      if (!(("cioc" in element) || ("cca3" in element))) {
+        throw new Error(`No. ${index} - ${aname} has no IOC code!`);
+      }
+*/
     }
   });
 
@@ -473,6 +529,7 @@ function verifyJson() {
         element.region === "Oceania"
     )
     .sort(sortCountries);
+
   // console.log(allCountries); // 245 countries
 
   let tempObject = {};
@@ -551,50 +608,48 @@ function sortCountries(a, z) {
 /* ROUTINES FOR Level 4: DISPLAY THE DETAILS OF A COUNTRY 
 
 Depending on what was click
-If the Image the ID will be of the form CYnn
-If the Text  the ID will be of the form CTnn
-If the surrounding area it will return a childNodes with a string of the form 
-'span#CT4.cardtext'
-
-Anything else ignore
+If the Image was clicked, the ID will be of the form CYnn
+If the Text was clicked, the ID will be of the form CTnn
+If the surrounding area was clicked use 'findParent() to determine the parent ID
+If unsuccessful, ignore
 */
 
-function handleCountryDetailsViews(theId, theChildNodes, theTarget) {
-  const regex = /^(C[TY]|target: span#CY)([0-9]+)/;
-  const found = theId.match(regex);
-  let theParent = theTarget;
-  console.log(theTarget, typeof theTarget);
-  console.log(theTarget.target, theTarget.parentElement);
-  if (!found) {
-    /* TRY TO DETERMINE THE ID BY GOING UP THE parentElement */
-
-    let ok = false;
-    let num = 0;
-    while (true) {
-      console.log(theParent, typeof theParent);
-      console.log(theParent);
-      if ("id" in theParent) {
-        alert("FOUND" + theParent.id);
-        ok = true;
-        break;
-      }
-
-      if (++num > 4) {
-        // Definitely not found!
-        return;
-      }
-      console.log(theParent);
-      theParent = theParent.target.parentNode;
-    }
-    console.log(theParent);
-    return;
-
-    let array = [...theChildNodes]; // convert nodes to an array
-    //alert("OK" + array[1]);
-    for (let i in array) console.log(i, array[i]);
-    return;
+function findParent(element) {
+  // Search the DOM tree
+  const parent = element.parentNode;
+  if (parent.classList.contains("countrycard")) {
+    return parent.id;
+  } else if (parent) {
+    return findParent(parent);
   }
-  console.log(found);
+
+  return null; // Unsuccessful
+}
+
+function handleCountryDetailsViews(theId, element) {
+  const regex = /^(C[TY])([0-9]+)/;
+  let found = theId.match(regex);
+
+  // Firstly check whether the current value of element is already pointing at the id using CLASS "countrycard"
+  if (!found && element.classList.contains("countrycard")) {
+    found = element.id.match(regex);
+  }
+
+  // Otherwise, try to determine the ID by searching among the Parent Element
+  if (!found) {
+    element = findParent(element);
+    if (!(element && (found = element.match(regex)))) {
+      return 0; // Unsuccessful
+    }
+  }
+
+  // RESULT: found ==> 3) ['CY1', 'CY', '1', index: 0, input: 'CY1', groups: undefined]
+  // THE RELEVANT INDEX IS IN found[2]
+
+  let countryIndex = Number(found[2]);
+  // Note it is (1 +) the actual position in allCountries
+  // in order to update the State with a nonzero value
+  return countryIndex;
 }
 
 export default App;

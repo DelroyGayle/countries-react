@@ -242,4 +242,11 @@ img {
     ".              .               .               .               .               ."
     "theborder      neighbours      neighbours      neighbours      neighbours      neighbours";
   gap: 10px;
+  font-size: 18px;
+}
+
+.title {
+  font-weight: 500;
+  /* https://stackoverflow.com/questions/7300760/prevent-line-break-of-span-element */
+  white-space: nowrap;
 }
