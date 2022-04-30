@@ -45,7 +45,6 @@ function App() {
       });
   }, []);
 
-
   function handleChange(event) {
     let enteredString = event.target.value;
 
@@ -61,8 +60,28 @@ function App() {
     });
   }
 
+  function handleMenuChange(event) {
+    let theValue = event.target.value;
+
+    let regionChangeFlag = false;
+
+    if (theValue !== searchRegion) {
+      // Change of Region
+      searchRegion = theValue;
+      // Apply Change
+      applyFilter();
+
+      // update State
+      setStateObject({
+        ...stateObject,
+        displayedList: filteredIndices,
+        region: searchRegion,
+      });
+    }
+  }
+
   function applyFilter(enteredString = stateObject.textEntered) {
-   
+
     if (enteredString !== "") {
       if (searchRegion === "all") {
         filteredIndices = allTheNames.filter((element) =>
@@ -93,8 +112,8 @@ function App() {
 
   function handleClick(event) {}
 
-  dataState && applyFilter("");
-  
+  dataState && applyFilter();
+
   return (
     <div className="App">
       {loading && <div>A moment please...</div>}
@@ -118,10 +137,13 @@ function App() {
               />
             </div>
             <div className="right">
-              <select name="regions-menu" className = "select-class">
-                <option value="all" selected>
-                  Filter by Region
-                </option>
+              <select
+                name="regions-menu"
+                className="select-class"
+                onChange={handleMenuChange}
+                defaultValue="all"
+              >
+                <option value="all">Filter by Region</option>
                 <option value="Africa">Africa</option>
                 <option value="Americas">America</option>
                 <option value="Asia">Asia</option>
@@ -141,13 +163,37 @@ function App() {
   );
 }
 
+/*
+To fix the “Warning: Use the ‘defaultValue’ or ‘value’ props on <select> instead of setting ‘selected’ on <option>” error message 
+we should set the defaultValue prop to the value attribute value of the default option.
+
+So instead of the above
+
+                <option value="all" selected>
+                  Filter by Region
+                </option>
+
+Remove 'selected' and add defaultValue="all" to <select>
+
+              <select
+                name="regions-menu"
+                className="select-class"
+                onChange={handleMenuChange}
+                defaultValue="all"
+              >
+                <option value="all">
+                  Filter by Region
+                </option>
+                ...
+*/
+
 function setUp() {
   allTheNames = verifyJson();
   // console.log(allTheNames); // 482 entries
 
   let consecNums = [...Array(allCountries.length).keys()]; // 0,1,2,3,... to the length of allCountries-1 i.e. 0-188
 
-  // The state has 4 elements: countryNameList, displayedList, textEntered, region
+  // The state has four elements: countryNameList, displayedList, textEntered, region
   stateToBeginWith = {
     countryNameList: consecNums,
     displayedList: consecNums,
