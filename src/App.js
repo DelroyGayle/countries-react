@@ -6,12 +6,11 @@ let allCountries;
 
 let stateToBeginWith = {},
   allTheNames;
-let filteredList = [];
+let filteredIndices = [];
 let searchRegion = "all";
 
 function App() {
   const [dataState, setDataState] = useState(null);
-  //const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stateObject, setStateObject] = useState(null);
@@ -46,15 +45,6 @@ function App() {
       });
   }, []);
 
-  /*
-  //const [stateObject, setStateObject] = useState({ ...stateToBeginWith }); // shallow copy
-  const [stateObject, setStateObject] = useState(null); // shallow copy
-  const [, updateState] = React.useState();
-  const forceUpdate = React.useCallback(() => updateState({}), []);
-
-  console.log(stateObject);
-  console.log(stateToBeginWith);
-*/
 
   function handleChange(event) {
     let enteredString = event.target.value;
@@ -67,18 +57,19 @@ function App() {
     setStateObject({
       ...stateObject,
       textEntered: enteredString,
-      displayedList: filteredList,
+      displayedList: filteredIndices,
     });
   }
 
   function applyFilter(enteredString = stateObject.textEntered) {
+   
     if (enteredString !== "") {
       if (searchRegion === "all") {
-        filteredList = allTheNames.filter((element) =>
+        filteredIndices = allTheNames.filter((element) =>
           element[0].includes(enteredString.toLowerCase())
         );
       } else {
-        filteredList = allTheNames.filter(
+        filteredIndices = allTheNames.filter(
           (element) =>
             allCountries[element[1]].region === searchRegion &&
             element[0].includes(enteredString.toLowerCase())
@@ -87,7 +78,7 @@ function App() {
     } else {
       // enteredString === ""
 
-      filteredList =
+      filteredIndices =
         searchRegion === "all"
           ? allTheNames
           : allTheNames.filter(
@@ -95,14 +86,15 @@ function App() {
             );
     }
 
-    let noDuplicates = new Set(filteredList.map((element) => element[1]));
-    filteredList = [...noDuplicates];
-    // filteredList now contains all the relevant indices to allCountries that match the Criteria
+    let noDuplicates = new Set(filteredIndices.map((element) => element[1]));
+    filteredIndices = [...noDuplicates];
+    // filteredIndices now contains all the relevant indices to allCountries that match the Criteria
   }
 
   function handleClick(event) {}
 
   dataState && applyFilter("");
+  
   return (
     <div className="App">
       {loading && <div>A moment please...</div>}
@@ -111,10 +103,39 @@ function App() {
       )}
 
       {dataState && (
-        <DisplayCountries
-          theCountries={[...stateObject.displayedList]}
-          handleClick={handleClick}
-        />
+        <div>
+          <div className="flexwrap-container">
+            <div className="left">
+              <input
+                className="searchbar"
+                type="text"
+                autoComplete="off"
+                id="country-query"
+                name="q"
+                placeholder="Search for a country..."
+                value={stateObject.textEntered}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="right">
+              <select name="regions-menu" className = "select-class">
+                <option value="all" selected>
+                  Filter by Region
+                </option>
+                <option value="Africa">Africa</option>
+                <option value="Americas">America</option>
+                <option value="Asia">Asia</option>
+                <option value="Europe">Europe</option>
+                <option value="Oceania">Oceania</option>
+              </select>
+            </div>
+          </div>
+          <div className="blankspace"></div>
+          <DisplayCountries
+            theCountries={[...stateObject.displayedList]}
+            handleClick={handleClick}
+          />
+        </div>
       )}
     </div>
   );
@@ -122,7 +143,7 @@ function App() {
 
 function setUp() {
   allTheNames = verifyJson();
-  console.log(allTheNames); // 482 entries
+  // console.log(allTheNames); // 482 entries
 
   let consecNums = [...Array(allCountries.length).keys()]; // 0,1,2,3,... to the length of allCountries-1 i.e. 0-188
 
@@ -139,10 +160,6 @@ const DisplayCountries = (props) => {
   let listOfCountriesIndices = props.theCountries;
   return (
     <div>
-      <div className="flexwrap-container">
-        <div className="left">one</div>
-        <div className="right">two</div>
-      </div>
       <div className="flex-container">
         {listOfCountriesIndices.map((countryIndex) => {
           // let theClassName = child.gender === "m" ? "malename" : "femalename";
@@ -187,15 +204,18 @@ function DisplayACountry(props) {
       <span className="cardtext">
         <h2>{props.countryName}</h2>
         <span>
-          <b>Population:</b> {props.population}
+          <b>Population: </b>
+          {props.population}
         </span>
 
         <span>
-          <b>Region:</b> {props.region}
+          <b>Region: </b>
+          {props.region}
         </span>
 
         <span>
-          <b>Capital:</b> {props.capitalName}
+          <b>Capital: </b>
+          {props.capitalName}
         </span>
       </span>
     </span>
@@ -276,7 +296,10 @@ function verifyJson() {
       throw new Error(`No. ${index} - CANNOT DETERMINE COUNTRY NAME`);
     }
     let aname = element.name.common;
-    if (aname === "Macau") {
+    // altSpellings: (4) ['AX', 'Aaland', 'Aland', 'Ahvenanmaa']
+    if (element.altSpellings.includes("Aland")) {
+      allCountries[index].name.common = "Aland Islands"; // I have chosen to this instead
+    } else if (aname === "Macau") {
       element.capital = [];
     } else if (
       aname === "Antarctica" ||
