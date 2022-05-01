@@ -62,6 +62,7 @@
   width: 15rem; /* 240px; */
   box-shadow: var(--box-shadow-colour);; /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
 }
+
 .countrycard img {
   display: block;
   object-fit: cover; /* Needed to show flags correctly */
@@ -130,8 +131,8 @@ input:focus {
 }
 
 .select-class:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
+  outline: solid transparent 0.125rem; /* 2px; */
+  outline-offset: 0.125rem; /* 2px; */
 }
 
 .blankspace {
@@ -142,17 +143,12 @@ input:focus {
   margin: 5rem;
   display: flex;
   flex-basis: 50%;
-  gap: 60px;
-}
-
-.wrap3 {
-  flex-grow: 1;
-  min-width: 33%;
+  gap: 3.75rem /* 60px; */
 }
 
 img {
-  width: 500px;
-  height: 360px;
+  width: 31.25rem; /* 500px; */
+  height: 22.5rem; /* 360px; */
   object-fit: cover; /* Needed to show flags correctly */
 }
 
@@ -215,10 +211,7 @@ img {
 
 .grid-container {
   display: grid;
-  /*
-  grid-template-columns: 50px 50px 50px 50px;
-  grid-template-rows: auto;
-	*/
+
   grid-template-areas:
     "countryname    countryname     countryname     countryname     countryname     countryname"
     "nativename     nativename      nativename      tld             tld             tld"
@@ -231,8 +224,8 @@ img {
     ".              .               .               .               .               ."
     ".              .               .               .               .               ."
     "theborder      neighbours      neighbours      neighbours      neighbours      neighbours";
-  gap: 10px;
-  font-size: 18px;
+  gap: 0.625rem; /* 10px; */
+  font-size: 1.125rem; /* 18px; */
 }
 
 .title {
@@ -261,7 +254,7 @@ hr {
   justify-content: center;
 
   /* Spacing */
-  padding: 8px;
+  padding: 0.5rem; /* 8px; */
   border-color: transparent;
   box-shadow: var(--box-shadow-colour);
   margin: 2rem 5rem;
@@ -272,14 +265,14 @@ hr {
   background-color: transparent;
 
   /* Size */
-  height: 12px;
-  width: 12px;
+  height: 0.75rem; /* 12px; */
+  width: 0.75rem; /* 12px; */
 }
 
 .button-arrow-left {
   /* Edges */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-  border-left: 1px solid rgba(0, 0, 0, 0.3);
+  border-bottom: 0.063rem solid rgba(0, 0, 0, 0.3); /* 1px */
+  border-left: 0.063rem solid rgba(0, 0, 0, 0.3); /* 1px */
   transform: translateX(25%) rotate(45deg);
 }
 

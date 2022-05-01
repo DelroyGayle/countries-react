@@ -1,4 +1,4 @@
-import logo from "./logo.svg";
+// import logo from "./logo.svg";
 import "./App.css";
 import React, { useState, useEffect } from "react";
 
@@ -115,7 +115,7 @@ function App() {
 
   function handleClick(event) {
     /*
-       Determine the #ID of the clicked element either CYnn or CTnn
+       Determine the #ID of the clicked element which is either CYnn or CTnn
        nn being (1 +) its position in allCountries
     */
 
@@ -186,16 +186,15 @@ function App() {
 
    Each of these 3 character codes as been given a number of 0 - 244 stored in countryCodeTable     
  */
+
     const listButtons = countryInfo.borders.map((aBorder, index) => {
       let numValue = countryCodeTable[aBorder];
       let theId = "CB" + (numValue + 1); // + 1 to ensure nonzero; so CB1 TO CB245
 
-      // Add a line break after 5 countries
-
       return (
         <button
           key={index}
-          className="button-38 border-item" 
+          className="button-38 border-item"
           id={theId}
           onClick={props.handleClick}
         >
@@ -322,6 +321,8 @@ function App() {
     );
   }
 
+  // Otherwise the Main View
+
   return (
     <div className="App">
       {loading && <div>A moment please...</div>}
@@ -345,7 +346,7 @@ function App() {
                   onChange={handleChange}
                 />
               </div>
-              <div className="right" >
+              <div className="right">
                 <select
                   name="regions-menu"
                   className="select-class"
@@ -456,7 +457,7 @@ function DisplayACountry(props) {
         id={props.countryName}
         
         eg CY1 CY100 THEREFORE CY1 TO CY245 
-        USING +1 BECAUSE OF const [detailsView, setDetailsView] = useState(false);
+        USING +1 BECAUSE OF const [detailsView, setDetailsView] = useState(0);
         0 WOULD BE CONSIDERED FALSE
 
         Also I need an #ID with the same unique number for the corresponding text just in case the text is clicked
