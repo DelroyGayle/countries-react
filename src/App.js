@@ -8,14 +8,14 @@ let stateToBeginWith = {},
   allTheNames;
 let filteredIndices = [];
 let searchRegion = "all";
-let countryIndex;
+let countryIndex, countryCodeTable;
 
 function App() {
   const [dataState, setDataState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stateObject, setStateObject] = useState(null);
-  const [detailsView, setDetailsView] = useState(0);
+  const [detailsView, setDetailsView] = useState(0); // Main View
 
   useEffect(() => {
     fetch(`https://restcountries.com/v3.1/all`)
@@ -125,8 +125,98 @@ function App() {
     );
     if (countryIndex)
       // Success, update State and decrement 'countryIndex' to true value
-      setDetailsView(countryIndex--);
+      setDetailsView(countryIndex--); // Country Detailed View
   }
+
+  function handleGoBack(event) {
+    setDetailsView(0); // Reset the State back to Main View
+  }
+
+  function handleBorderButton(event) {
+    const regex = /^(CB)([0-9]+)/;
+    let theId = event.target.id;
+    let found = theId.match(regex);
+
+    if (!found) {
+      // Just in case the #ID cannot be determined, do nothing
+      return;
+    }
+
+    // RESULT: found ==> (3) ['CB147', 'CB', '147', index: 0, input: 'CB147', groups: undefined
+    // THE RELEVANT INDEX IS IN found[2]
+
+    countryIndex = Number(found[2]);
+    // Note it is (1 +) the actual position in allCountries
+    // in order to update the State with a nonzero value
+    setDetailsView(countryIndex--); // Update State for new country and decrement 'countryIndex' to true value
+  }
+
+  function MainHeading() {
+    return (
+      <div>
+        <div className="flexwrap-container mb1">
+          <div className="left">
+            <h1>Where in the world?</h1>
+          </div>
+          <div className="right">
+            <span>Dark Mode</span>
+          </div>
+        </div>
+        <hr></hr>
+      </div>
+    );
+  }
+
+  function BorderCountries(props) {
+    if (!props.flag) return null; // There are no bordering countries so render nothing
+
+    let countryInfo = props.theCountryInfo;
+
+    /*
+   For example, 
+   Albania: borders: (4) ['MNE', 'GRC', 'MKD', 'UNK']
+   Colombia":
+        "borders": [
+            "BRA",
+            "ECU",
+            "PAN",
+            "PER",
+            "VEN"
+        ]
+
+   Each of these 3 character codes as been given a number of 0 - 244 stored in countryCodeTable     
+ */
+    const listButtons = countryInfo.borders.map((aBorder, index) => {
+      let numValue = countryCodeTable[aBorder];
+      let theId = "CB" + (numValue + 1); // + 1 to ensure nonzero; so CB1 TO CB245
+
+      // Add a line break after 5 countries
+
+      return (
+        <button
+          key={index}
+          className="button-38 border-item" 
+          id={theId}
+          onClick={props.handleClick}
+        >
+          {allCountries[numValue].name.common}
+        </button>
+      );
+    });
+
+    return (
+      <>
+        <div className="theborder">
+          <span className="title">Border Countries: </span>
+        </div>
+        <div className="neighbours">
+          <div className="borders-flex-container">{listButtons}</div>
+        </div>
+      </>
+    );
+  }
+
+  /* END OF FUNCTIONS, START OF CODE */
 
   // Error occurred whilst fetching data
   if (error) {
@@ -136,7 +226,7 @@ function App() {
   dataState && !detailsView && applyFilter();
 
   /*
-      Level 4 :-
+      Level 4 - Country Detailed View
       Allow users to click on a country and view that country's full details, as shown in the frontendmentor challenge.
       Make sure to allow clicking on bordering countries to visit these neighbours
   */
@@ -145,6 +235,7 @@ function App() {
     let countryInfo = allCountries[countryIndex];
     let theLanguages = "",
       theNativeName = "";
+    let anyBorders = "borders" in countryInfo && countryInfo.borders.length > 0; // Are there any bordering countries?
     /*
     For population, .toLocaleString() adds the commas
     */
@@ -171,64 +262,58 @@ function App() {
     }
 
     return (
-      <div className="cview-flex-container">
-        <img src="https://flagcdn.com/ag.svg" alt="" />
-        <div>
+      <div>
+        <MainHeading />
+        <button className="button" onClick={handleGoBack}>
+          <div className="button-arrow button-arrow-left"></div>
+          Back
+        </button>
+        <div className="cview-flex-container">
+          <img
+            src={countryInfo.flags.svg}
+            alt={`Flag for ${countryInfo.name.common}`}
+          ></img>
           <div>
-            <div className="grid-container">
-              <h2 className="countryname">{countryInfo.name.common}</h2>
-              <div className="nativename">
-                <span className="title">Native Name: </span>
-                {theNativeName}
-              </div>
-              <div className="population">
-                <span className="title">Population: </span>
-                {countryInfo.population.toLocaleString() || ""}
-              </div>
-              <div className="capital">
-                <span className="title">Capital: </span>
-                {countryInfo.capital[0] || ""}
-              </div>
-              <div className="region">
-                <span className="title">Region: </span>
-                {countryInfo.region || ""}
-              </div>
-              <div className="subregion">
-                <span className="title">Sub Region: </span>
-                {countryInfo.subregion || ""}
-              </div>
-              <div className="tld">
-                <span className="title">Top Level Domain: </span>
-                {countryInfo.tld[0] || ""}
-              </div>
-              <div className="currencies">
-                <span className="title">Currencies: </span>
-                {theCurrencies}
-              </div>
-              <div className="languages">
-                <span className="title">Languages: </span>
-                {theLanguages}
-              </div>
-              <div className="theborder">
-                <span className="title">Border Countries: </span>
-              </div>
-              <div className="neighbours">
-                <div className="flex">
-                  <div className="border-item">Navigation1</div>
-                  <div className="line-break"></div>
-                  <div className="border-item">Navigation2</div>
-                  <div className="border-item">Navigation3</div>
-                  <div className="line-break"></div>
-                  <div className="border-item">Navigation4</div>
-                  <div className="border-item">Navigation5</div>
-                  <div className="border-item">Navigation6</div>
-                  <div className="border-item">Navigation7</div>
-                  <div className="line-break"></div>
-                  <div className="border-item">Navigation8</div>
-                  <div className="border-item">Navigation9</div>
-                  <div className="border-item">Navigation10</div>
-                  <div className="border-item">Navigation11</div>
+            <div>
+              <div className="grid-container">
+                <h2 className="countryname">{countryInfo.name.common}</h2>
+                <div className="nativename">
+                  <span className="title">Native Name: </span>
+                  {theNativeName}
                 </div>
+                <div className="population">
+                  <span className="title">Population: </span>
+                  {countryInfo.population.toLocaleString() || ""}
+                </div>
+                <div className="capital">
+                  <span className="title">Capital: </span>
+                  {countryInfo.capital[0] || ""}
+                </div>
+                <div className="region">
+                  <span className="title">Region: </span>
+                  {countryInfo.region || ""}
+                </div>
+                <div className="subregion">
+                  <span className="title">Sub Region: </span>
+                  {countryInfo.subregion || ""}
+                </div>
+                <div className="tld">
+                  <span className="title">Top Level Domain: </span>
+                  {countryInfo.tld[0] || ""}
+                </div>
+                <div className="currencies">
+                  <span className="title">Currencies: </span>
+                  {theCurrencies}
+                </div>
+                <div className="languages">
+                  <span className="title">Languages: </span>
+                  {theLanguages}
+                </div>
+                <BorderCountries
+                  theCountryInfo={countryInfo}
+                  flag={anyBorders}
+                  handleClick={handleBorderButton}
+                />
               </div>
             </div>
           </div>
@@ -245,40 +330,43 @@ function App() {
 
       {dataState && (
         <div>
-          <div className="flexwrap-container">
-            <div className="left">
-              <input
-                className="searchbar"
-                type="text"
-                autoComplete="off"
-                id="country-query"
-                name="q"
-                placeholder="Search for a country..."
-                value={stateObject.textEntered}
-                onChange={handleChange}
-              />
+          <MainHeading />
+          <div>
+            <div className="flexwrap-container">
+              <div className="left">
+                <input
+                  className="searchbar"
+                  type="text"
+                  autoComplete="off"
+                  id="country-query"
+                  name="q"
+                  placeholder="Search for a country..."
+                  value={stateObject.textEntered}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="right" >
+                <select
+                  name="regions-menu"
+                  className="select-class"
+                  onChange={handleMenuChange}
+                  defaultValue="all"
+                >
+                  <option value="all">Filter by Region</option>
+                  <option value="Africa">Africa</option>
+                  <option value="Americas">America</option>
+                  <option value="Asia">Asia</option>
+                  <option value="Europe">Europe</option>
+                  <option value="Oceania">Oceania</option>
+                </select>
+              </div>
             </div>
-            <div className="right">
-              <select
-                name="regions-menu"
-                className="select-class"
-                onChange={handleMenuChange}
-                defaultValue="all"
-              >
-                <option value="all">Filter by Region</option>
-                <option value="Africa">Africa</option>
-                <option value="Americas">America</option>
-                <option value="Asia">Asia</option>
-                <option value="Europe">Europe</option>
-                <option value="Oceania">Oceania</option>
-              </select>
-            </div>
+            <div className="blankspace"></div>
+            <DisplayCountries
+              theCountries={[...stateObject.displayedList]}
+              handleClick={handleClick}
+            />
           </div>
-          <div className="blankspace"></div>
-          <DisplayCountries
-            theCountries={[...stateObject.displayedList]}
-            handleClick={handleClick}
-          />
         </div>
       )}
     </div>
@@ -530,13 +618,42 @@ Instead use 'cca3'
     )
     .sort(sortCountries);
 
-  // console.log(allCountries); // 245 countries
+  /* console.log(allCountries); // 245 countries
+  
+  You can have duplicates,
+  that is Afghanistan has both
+        "cca3": "AFG",
+        "cioc": "AFG",
+  */
 
   let tempObject = {};
+  countryCodeTable = {}; // Global Variable
+
   allCountries.forEach((element, index) => {
     tempObject[element.name.common.toLowerCase()] = index; // Country Name
     if (element.capital.length > 0) {
-      tempObject[element.capital[0].toLowerCase()] = index; // Country Name
+      tempObject[element.capital[0].toLowerCase()] = index; // Capital Name
+    }
+    let found = false;
+    if ("cioc" in element) {
+      // Check for Duplicates
+      if (element.cioc in countryCodeTable) {
+        throw new Error(
+          `Duplicate CIOC found ${element.cioc} found for ${element.name.common}`
+        );
+      }
+
+      countryCodeTable[element.cioc] = index;
+      found = true;
+    }
+
+    if (!(element.cca3 in countryCodeTable)) {
+      countryCodeTable[element.cca3] = index;
+      found = true;
+    }
+
+    if (!found) {
+      throw new Error(`No Country Code found for ${element.name.common}`);
     }
   });
 

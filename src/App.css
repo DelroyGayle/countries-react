@@ -60,7 +60,7 @@
   display: flex;
   flex-direction: column;
   width: 15rem; /* 240px; */
-  box-shadow: 0 0.188rem 0.625rem rgb(0 0 0 / 0.2); /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
+  box-shadow: var(--box-shadow-colour);; /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
 }
 .countrycard img {
   display: block;
@@ -89,6 +89,7 @@
 .flexwrap-container {
   display: flex;
   flex-wrap: wrap;
+  margin: 1rem 5rem;
 }
 
 .left,
@@ -103,7 +104,7 @@
 
 .searchbar {
   margin-top: 5vh;
-  margin-left: 5rem;
+  /* margin-left: 5rem; */
   padding: 2rem;
   width: 25rem;
   font-size: 0.875rem; /* 14px; */
@@ -122,17 +123,15 @@ input:focus {
 .select-class {
   width: 15.625rem; /* 250px */
   margin-top: 5vh;
-  margin-right: 5rem;
+  /*  margin-right: 5rem; */
   font-size: 0.875rem; /* 14px; */
-  line-height: 1.8rem;
+  padding: 1rem;
+  
 }
 
-select {
-  /*
-  border: 1px solid #ccc;
-  -webkit-select-appearance: none;
-  */
-  border: 1px solid #ccc;
+.select-class:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 
 .blankspace {
@@ -154,30 +153,21 @@ select {
 img {
   width: 500px;
   height: 360px;
+  object-fit: cover; /* Needed to show flags correctly */
 }
 
-.flex {
+.borders-flex-container {
+  margin-left: 2rem;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-}
+  row-gap:1rem;
+  column-gap: 2rem;
 
-.line-break {
-  width: 100%;
-}
-
-/* Level 4 Code */
+ }
 
 .border-item {
-  /* box-sizing:border-box; */
-  border: none;
-  box-shadow: 0 0.188rem 0.625rem rgb(0 0 0 / 0.2);
-  position: relative;
-  margin: 10px;
-  padding: 10px 0;
-  color: black;
-  width: 150px;
-  text-align: center;
+  flex-basis: 20%;
 }
 
 /* Use GRID Method */
@@ -249,4 +239,87 @@ img {
   font-weight: 500;
   /* https://stackoverflow.com/questions/7300760/prevent-line-break-of-span-element */
   white-space: nowrap;
+}
+
+/* https://stackoverflow.com/questions/18179209/how-to-set-width-of-a-hr-in-css-to-x-number-of-pixels-less-than-the-widthaut */
+hr {
+  width: auto;
+  margin: 0 5rem;
+  background-color: gray;
+}
+
+.mb1 {
+  margin-bottom: 1rem;
+}
+
+/* Solution taken from https://csslayout.io/arrow-buttons/ */
+
+.button {
+  /* Center the content */
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  /* Spacing */
+  padding: 8px;
+  border-color: transparent;
+  box-shadow: var(--box-shadow-colour);
+  margin: 2rem 5rem;
+}
+
+.button-arrow {
+  /* Transparent background */
+  background-color: transparent;
+
+  /* Size */
+  height: 12px;
+  width: 12px;
+}
+
+.button-arrow-left {
+  /* Edges */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  border-left: 1px solid rgba(0, 0, 0, 0.3);
+  transform: translateX(25%) rotate(45deg);
+}
+
+/* CSS 
+from
+https://getcssscan.com/css-buttons-examples
+*/
+
+.button-38 {
+  background-color: #ffffff;
+  border: 0;
+  border-radius: 0.5rem;
+  box-sizing: border-box;
+  color: #111827;
+  font-family: "Inter var", ui-sans-serif, system-ui, -apple-system, system-ui,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  text-decoration: none #d1d5db solid;
+  text-decoration-thickness: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-38:hover {
+  background-color: rgb(249, 250, 251);
+}
+
+.button-38:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.button-38:focus-visible {
+  box-shadow: none;
 }
