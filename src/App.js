@@ -1,6 +1,7 @@
-// import logo from "./logo.svg";
 import "./App.css";
 import React, { useState, useEffect } from "react";
+/* Will use local-storage to keep a record of the stateful knowledge of the theme being used */
+import useLocalStorage from "use-local-storage";
 
 let allCountries;
 
@@ -16,6 +17,34 @@ function App() {
   const [error, setError] = useState(null);
   const [stateObject, setStateObject] = useState(null);
   const [detailsView, setDetailsView] = useState(0); // Main View
+
+  /*
+  First, check if the user has set a theme preference in their browser settings. 
+  Then create a stateful theme variable that is tied to localStorage and the setTheme function to update theme. 
+  
+  useLocalStorage adds a key:value pair to localStorage if it doesn’t already exist, 
+  which defaults to theme: "light", unless our matchMedia check comes back as true, 
+  in which case it’s theme: "dark". 
+  
+  This method handles both possibilities of keeping the theme settings for a returning user, 
+  or respecting their browser settings by default with regards to new users.
+  For more details see
+  https://css-tricks.com/easy-dark-mode-and-multiple-color-themes-in-react/ 
+  */
+
+  const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [theme, setTheme] = useLocalStorage(
+    "theme",
+    defaultDark ? "dark" : "light"
+  );
+
+  const nightText = "Night Mode";
+  const dayText = "Day Mode";
+
+  const switchTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+  };
 
   useEffect(() => {
     fetch(`https://restcountries.com/v3.1/all`)
@@ -76,6 +105,19 @@ function App() {
         ...stateObject,
         displayedList: filteredIndices,
         region: searchRegion,
+      });
+    }
+  }
+
+  function clearSearch() {
+    if (stateObject.textEntered !== "") {
+      applyFilter("");
+
+      // update State
+      setStateObject({
+        ...stateObject,
+        textEntered: "", /* Cleared the Search String */
+        displayedList: filteredIndices
       });
     }
   }
@@ -151,6 +193,14 @@ function App() {
     setDetailsView(countryIndex--); // Update State for new country and decrement 'countryIndex' to true value
   }
 
+  /*
+    Give the outermost <div> element of the application a data-theme attribute 
+    and toggling its value between light and dark. 
+    When it’s dark, the CSS[data-theme='dark'] section overrides the variables we defined in the :root, 
+    so any styling which relies on those variables is toggled as well.
+    For more details see
+    https://css-tricks.com/easy-dark-mode-and-multiple-color-themes-in-react/ 
+  */
   function MainHeading() {
     return (
       <div>
@@ -159,7 +209,26 @@ function App() {
             <h1>Where in the world?</h1>
           </div>
           <div className="right">
-            <span>Dark Mode</span>
+            <div>
+              <div class="toggle">
+                <input
+                  type="checkbox"
+                  id="toggle"
+                  checked={theme === "light"}
+                  onClick={switchTheme}
+                />
+                <label htmlFor="toggle"></label>
+              </div>
+              <button
+                id="theme-button"
+                className={
+                  "noborder " + (theme === "light" ? "day-mode" : "night-mode")
+                }
+                onClick={switchTheme}
+              >
+                {theme === "light" ? nightText : dayText}
+              </button>
+            </div>
           </div>
         </div>
         <hr></hr>
@@ -230,6 +299,8 @@ function App() {
       Make sure to allow clicking on bordering countries to visit these neighbours
   */
 
+  /******************** IF DETAILED VIEW  ********************/
+
   if (detailsView) {
     let countryInfo = allCountries[countryIndex];
     let theLanguages = "",
@@ -261,7 +332,7 @@ function App() {
     }
 
     return (
-      <div>
+      <div className="App" data-theme={theme}>
         <MainHeading />
         <button className="button" onClick={handleGoBack}>
           <div className="button-arrow button-arrow-left"></div>
@@ -321,13 +392,15 @@ function App() {
     );
   }
 
+  /******************** ELSE MAIN VIEW  ********************/
+
   // Otherwise the Main View
 
   return (
-    <div className="App">
-      {loading && <div>A moment please...</div>}
+    <div className="App" data-theme={theme}>
+      {loading && <div className="centre">A moment please...</div>}
 
-      {error && <div>ERROR</div>}
+      {error && <div className="centre">ERROR</div>}
 
       {dataState && (
         <div>
@@ -345,7 +418,12 @@ function App() {
                   value={stateObject.textEntered}
                   onChange={handleChange}
                 />
+
+                <div class="close-x" onClick={clearSearch}>
+                  &#10006;
+                </div>
               </div>
+
               <div className="right">
                 <select
                   name="regions-menu"

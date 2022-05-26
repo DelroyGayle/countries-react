@@ -1,13 +1,40 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+/* https://www.w3schools.com/cssref/css_colors.asp */
+
+:root {
+  --darkslategray: #343131;
+  --colour-grey: #808080;
+  --colour-black: #000000;
+  --colour-white: #ffffff;
+  --colour-royal-blue: #4169e1;
+  --colour-purple: #800080;
+  --colour-darkred: #8b0000;
+
+  --background: var(--colour-white);
+  --text-primary: var(--colour-black);
+  --text-secondary: var(--colour-royal-blue);
+  --accent: var(--colour-purple);
+}
+
+/* HTML (and JSX, which we’re using to create HTML in React) 
+   allows us to set completely arbitrary properties for our HTML elements with the data-* attribute. */
+
+[data-theme="dark"] {
+  --background: var(--darkslategray);
+  --text-primary: var(--colour-white);
+  --text-secondary: var(--colour-grey);
+  --accent: var(--colour-darkred);
 }
