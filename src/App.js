@@ -116,8 +116,8 @@ function App() {
       // update State
       setStateObject({
         ...stateObject,
-        textEntered: "", /* Cleared the Search String */
-        displayedList: filteredIndices
+        textEntered: "" /* Cleared the Search String */,
+        displayedList: filteredIndices,
       });
     }
   }
@@ -221,10 +221,8 @@ function App() {
               </div>
               <button
                 id="theme-button"
-                className={
-                  "noborder " + (theme === "light" ? "day-mode" : "night-mode")
-                }
-                onClick={switchTheme}
+                className={theme === "light" ? "day-mode" : "night-mode"}
+                onClick={switchTheme} /* Update the checkbox, start the animation & update the text */
               >
                 {theme === "light" ? nightText : dayText}
               </button>
