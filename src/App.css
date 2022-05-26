@@ -15,10 +15,9 @@
   /* Dark Mode Theming */
   color: var(--text-primary);
   background-color: var(--background);
-  /* height: calc(100vh - 40px); */
   transition: all 0.5s;
+  margin-bottom: 2rem;
 }
-
 
 .flex-container {
   margin-left: 5rem;
@@ -44,7 +43,7 @@
 }
 
 .cardtext {
-  border: 0.063rem solid #000; /* 1px */
+  border: 0.063rem solid var(--colour-black); /* 1px */
   border-top-style: none;
   border-color: transparent;
   display: flex;
@@ -82,7 +81,7 @@
   padding: 2rem;
   width: 25rem;
   font-size: 0.875rem; /* 14px; */
-  border: 0.125rem solid #000;
+  border: 0.125rem solid var(--colour-black);
   border-color: transparent;
   box-shadow: var(--box-shadow-colour);
   padding-left: 0.1rem;
@@ -209,7 +208,7 @@ img {
 hr {
   width: auto;
   margin: 0 5rem;
-  background-color: gray;
+  background-color: var(--colour-grey);
 }
 
 .mb1 {
@@ -253,7 +252,7 @@ https://getcssscan.com/css-buttons-examples
 */
 
 .button-38 {
-  background-color: #ffffff;
+  background-color: var(--colour-white);
   border: 0;
   border-radius: 0.5rem;
   box-sizing: border-box;
@@ -280,19 +279,26 @@ https://getcssscan.com/css-buttons-examples
 }
 
 .button-38:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
+  outline: 0.125rem solid transparent; /* 2px; */
+  outline-offset: 0.125rem;
 }
 
 .button-38:focus-visible {
   box-shadow: none;
 }
 
-/* Dark Mode Button */
-.switchtheme-class {
+.day-mode {
   color: var(--text-primary);
   background-color: var(--background);
-  border: 2px var(--text-primary) solid;
-  float: right;
-  transition: all 0.5s;
+  font-size: 1rem;
+}
+
+.night-mode {
+  background-color: #333333;
+  color: #dddddd;
+}
+
+.day-mode, .night-mode {
+  font-size:1rem;
+  margin-top: 1rem;
 }

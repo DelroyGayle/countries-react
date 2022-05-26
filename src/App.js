@@ -38,6 +38,9 @@ function App() {
     defaultDark ? "dark" : "light"
   );
 
+  const nightText = "Night Mode";
+  const dayText = "Day Mode";
+
   const switchTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -193,10 +196,15 @@ function App() {
             <h1>Where in the world?</h1>
           </div>
           <div className="right">
-            <span>Dark Mode</span>
-            <button className="switchtheme-class" onClick={switchTheme}>
-              Switch to {theme === "light" ? "Dark" : "Light"} Theme
-            </button>
+            <div>
+              <button
+                id="theme-button"
+                className={theme === "light" ? "day-mode" : "night-mode"}
+                onClick={switchTheme}
+              >
+                {theme === "light" ? nightText : dayText}
+              </button>
+            </div>
           </div>
         </div>
         <hr></hr>
