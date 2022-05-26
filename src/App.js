@@ -109,6 +109,19 @@ function App() {
     }
   }
 
+  function clearSearch() {
+    if (stateObject.textEntered !== "") {
+      applyFilter("");
+
+      // update State
+      setStateObject({
+        ...stateObject,
+        textEntered: "", /* Cleared the Search String */
+        displayedList: filteredIndices
+      });
+    }
+  }
+
   function applyFilter(enteredString = stateObject.textEntered) {
     if (enteredString !== "") {
       if (searchRegion === "all") {
@@ -197,9 +210,20 @@ function App() {
           </div>
           <div className="right">
             <div>
+              <div class="toggle">
+                <input
+                  type="checkbox"
+                  id="toggle"
+                  checked={theme === "light"}
+                  onClick={switchTheme}
+                />
+                <label htmlFor="toggle"></label>
+              </div>
               <button
                 id="theme-button"
-                className={theme === "light" ? "day-mode" : "night-mode"}
+                className={
+                  "noborder " + (theme === "light" ? "day-mode" : "night-mode")
+                }
                 onClick={switchTheme}
               >
                 {theme === "light" ? nightText : dayText}
@@ -374,9 +398,9 @@ function App() {
 
   return (
     <div className="App" data-theme={theme}>
-      {loading && <div>A moment please...</div>}
+      {loading && <div className="centre">A moment please...</div>}
 
-      {error && <div>ERROR</div>}
+      {error && <div className="centre">ERROR</div>}
 
       {dataState && (
         <div>
@@ -394,7 +418,12 @@ function App() {
                   value={stateObject.textEntered}
                   onChange={handleChange}
                 />
+
+                <div class="close-x" onClick={clearSearch}>
+                  &#10006;
+                </div>
               </div>
+
               <div className="right">
                 <select
                   name="regions-menu"

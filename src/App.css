@@ -11,7 +11,6 @@
 }
 
 .App {
-  text-align: center;
   /* Dark Mode Theming */
   color: var(--text-primary);
   background-color: var(--background);
@@ -37,7 +36,7 @@
 
 .countrycard img {
   display: block;
-  object-fit: cover; /* Needed to show flags correctly */
+  object-fit: scale-down; /* Needed to show flags correctly */
   width: 15rem; /* 240px; */
   height: 12.5rem; /* 200px; */
 }
@@ -120,7 +119,7 @@ input:focus {
 img {
   width: 31.25rem; /* 500px; */
   height: 22.5rem; /* 360px; */
-  object-fit: cover; /* Needed to show flags correctly */
+  object-fit: scale-down; /* Needed to show flags correctly */
 }
 
 .borders-flex-container {
@@ -181,6 +180,7 @@ img {
 
 .grid-container {
   display: grid;
+  margin-bottom: 2rem;
 
   grid-template-areas:
     "countryname    countryname     countryname     countryname     countryname     countryname"
@@ -194,7 +194,8 @@ img {
     ".              .               .               .               .               ."
     ".              .               .               .               .               ."
     "theborder      neighbours      neighbours      neighbours      neighbours      neighbours";
-  gap: 0.625rem; /* 10px; */
+  column-gap: 0.625rem; /* 10px; */
+  row-gap: 1rem;
   font-size: 1.125rem; /* 18px; */
 }
 
@@ -287,6 +288,7 @@ https://getcssscan.com/css-buttons-examples
   box-shadow: none;
 }
 
+/* Mode Button */
 .day-mode {
   color: var(--text-primary);
   background-color: var(--background);
@@ -298,7 +300,88 @@ https://getcssscan.com/css-buttons-examples
   color: #dddddd;
 }
 
-.day-mode, .night-mode {
-  font-size:1rem;
+.day-mode,
+.night-mode {
+  font-size: 1rem;
   margin-top: 1rem;
+  border: none;
+}
+
+/* The Theme Toggle for Dark Mode */
+
+.toggle input[type="checkbox"] {
+  display: none;
+}
+
+/* the oval look on the label */
+.toggle label {
+  background-color: #777;
+  border: 0.125rem solid #555; /* 2px; */
+  border-radius: 3.125rem; /* 50px; */
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: all ease-in-out 0.3s;
+  width: 6.25rem; /* 100px; */
+  height: 3.125rem; /* 50px; */
+}
+
+/* the ::after selector to style the circle which will go inside this oval */
+
+.toggle label::after {
+  background-color: #555;
+  border-radius: 50%;
+  content: " ";
+  cursor: pointer;
+  display: inline-block;
+  position: absolute;
+  left: 0.125rem; /* 2px; */
+  top: 0.125rem;
+  transition: all ease-in-out 0.3s;
+  width: 2.625rem; /* 42px; */
+  height: 2.625rem;
+}
+
+/*
+The above is the styling for the unchecked state. 
+
+For the checked state:`
+
+Change the background and the border colors on the label and the ::after selector (the circle)
+This is done by two selectors:
+
+1) the :checked selector on the input - this will tell us whether it is checked or not
+2) the ~ or the sibling selector - this will help us target the label tag which comes after our checkbox
+For more details see
+https://www.florin-pop.com/blog/2019/05/dark-light-theme-toggle/ 
+*/
+
+.toggle input[type="checkbox"]:checked ~ label {
+  background-color: #00a0fc;
+  border-color: #006dc9;
+}
+
+.toggle input[type="checkbox"]:checked ~ label::after {
+  background-color: #0054b0;
+  transform: translateX(3.125rem); /* 50px */
+}
+
+.toggle input[type="checkbox"]:checked ~ label.animate {
+  background-color: #00a0fc;
+  border-color: #006dc9;
+}
+
+.toggle input[type="checkbox"]:checked ~ label.animate.grow {
+  background-color: #0054b0;
+  transform: translateX(3.125rem); /* 50px */
+}
+
+.close-x {
+  display: inline-block;
+  font-size: 1.6rem;
+  padding-left: 2.6rem;
+}
+
+.centre {
+  text-align: center;
 }
