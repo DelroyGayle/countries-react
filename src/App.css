@@ -32,6 +32,7 @@
   box-shadow: var(
     --box-shadow-colour
   ); /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
+  cursor: pointer;
 }
 
 .countrycard img {
@@ -98,6 +99,7 @@ input:focus {
   /*  margin-right: 5rem; */
   font-size: 0.875rem; /* 14px; */
   padding: 1rem;
+  cursor: pointer;
 }
 
 .select-class:focus {
@@ -229,6 +231,7 @@ hr {
   border-color: transparent;
   box-shadow: var(--box-shadow-colour);
   margin: 2rem 5rem;
+  cursor: pointer;
 }
 
 .button-arrow {
@@ -380,6 +383,7 @@ https://www.florin-pop.com/blog/2019/05/dark-light-theme-toggle/
   display: inline-block;
   font-size: 1.6rem;
   padding-left: 2.6rem;
+  cursor: pointer;
 }
 
 .centre {
