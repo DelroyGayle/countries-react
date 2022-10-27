@@ -76,6 +76,31 @@ function App() {
       });
   }, []);
 
+
+/*
+   For usage on mobile phones and small screens
+   Added the following useEffect
+   If screen below 620px set the theme to LIGHT only
+*/
+
+  const queryToMatch = "(max-width: 38.75rem)"; // "(max-width: 620px)";
+  const [matches, setMatches] = useState(
+    window.matchMedia(queryToMatch).matches
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia(queryToMatch);
+    // If there is a change update the match
+    if (media.matches !== matches) setMatches(media.matches);
+    if (media.matches && theme !== "light") {
+      setTheme("light");
+    }
+    // Add the listener to update the state
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+    return () => media.addEventListener("change", listener);
+  }, [matches, theme, setTheme]);
+  
   function handleChange(event) {
     let enteredString = event.target.value;
 
@@ -202,6 +227,7 @@ function App() {
     https://css-tricks.com/easy-dark-mode-and-multiple-color-themes-in-react/ 
   */
   function MainHeading() {
+
     return (
       <div>
         <div className="flexwrap-container mb1">
@@ -216,13 +242,16 @@ function App() {
                   id="toggle"
                   checked={theme === "light"}
                   onClick={switchTheme}
+                  defaultChecked={true}
                 />
                 <label htmlFor="toggle"></label>
               </div>
               <button
                 id="theme-button"
                 className={theme === "light" ? "day-mode" : "night-mode"}
-                onClick={switchTheme} /* Update the checkbox, start the animation & update the text */
+                onClick={
+                  switchTheme
+                } /* Update the checkbox, start the animation & update the text */
               >
                 {theme === "light" ? nightText : dayText}
               </button>
@@ -417,9 +446,9 @@ function App() {
                   onChange={handleChange}
                 />
 
-                <div class="close-x" onClick={clearSearch}>
-                  &#10006;
-                </div>
+                <button class="clear-search" onClick={clearSearch}>
+                  Clear Search
+                </button>
               </div>
 
               <div className="right">
@@ -666,7 +695,7 @@ function verifyJson() {
         throw new Error(`No. ${index} - ${aname} has no region!`);
       }
 
-      /*
+/*
 Discovered that
 There is a problem fetching the post data - No. 4 - Martinique has no IOC code!
 There is a problem fetching the post data - No. 22 - Réunion has no IOC code!
@@ -681,6 +710,7 @@ Instead use 'cca3'
         throw new Error(`No. ${index} - ${aname} has no IOC code!`);
       }
 */
+
     }
   });
 
@@ -734,7 +764,7 @@ Instead use 'cca3'
     }
   });
 
-  /*
+/*
   console.log(tempObject);
 
 This now contains a list of all countries' names and their capitals' names and their position within allCountries e.g.

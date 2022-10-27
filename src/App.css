@@ -10,6 +10,7 @@
   box-sizing: border-box;
 }
 
+
 .App {
   /* Dark Mode Theming */
   color: var(--text-primary);
@@ -75,9 +76,19 @@
   text-align: right;
 }
 
+/* When using a mobile remove the dark mode toggle.
+   Light theme ONLY
+     (max-width: 620px)
+*/
+
+@media screen and (max-width: 38.75rem) { 
+  .right {
+    display: none;
+  }
+}
+
 .searchbar {
   margin-top: 5vh;
-  /* margin-left: 5rem; */
   padding: 2rem;
   width: 25rem;
   font-size: 0.875rem; /* 14px; */
@@ -96,7 +107,6 @@ input:focus {
 .select-class {
   width: 15.625rem; /* 250px */
   margin-top: 5vh;
-  /*  margin-right: 5rem; */
   font-size: 0.875rem; /* 14px; */
   padding: 1rem;
   cursor: pointer;
@@ -114,8 +124,9 @@ input:focus {
 .cview-flex-container {
   margin: 5rem;
   display: flex;
-  flex-basis: 50%;
+  flex-basis: 25%; /* Changed from 50% to 25% to make mobile friendly */
   gap: 3.75rem; /* 60px; */
+  flex-wrap: wrap; /* Added to make mobile friendly */
 }
 
 img {
@@ -379,10 +390,9 @@ https://www.florin-pop.com/blog/2019/05/dark-light-theme-toggle/
   transform: translateX(3.125rem); /* 50px */
 }
 
-.close-x {
-  display: inline-block;
-  font-size: 1.6rem;
-  padding-left: 2.6rem;
+.clear-search {
+  font-size: 0.875rem;
+  margin: 2rem;
   cursor: pointer;
 }
 
